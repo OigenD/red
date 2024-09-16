@@ -1,0 +1,6 @@
+- name: Deploy and execute Python script
+  hosts: all
+  gather_facts: no
+  roles:
+    - script
+

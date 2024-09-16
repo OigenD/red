@@ -1,0 +1,14 @@
+[Unit]
+Description=Hello World Python Script Service
+After=network.target
+
+[Service]
+#Type=oneshot
+#Type=simple
+ExecStart=/usr/local/bin/hello_world.py
+#Restart=on-success
+#Restart=on-failure
+#RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

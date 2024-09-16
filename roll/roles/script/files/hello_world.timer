@@ -1,0 +1,14 @@
+#hello_world.timer
+
+
+[Unit]
+Description=Run Hello World Python Script timer
+
+[Timer]
+#OnCalendar=*:0/2
+OnCalendar=hourly
+#OnCalendar=*:*:05
+#Persistent=true
+
+[Install]
+WantedBy=timers.target

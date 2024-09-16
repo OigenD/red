@@ -1,0 +1,49 @@
+---
+- name: Deploy hello_world script
+  ansible.builtin.copy:
+    src: hello_world.py
+    dest: /usr/local/bin/hello_world.py
+    mode: '0755'
+
+- name: Print script output
+  ansible.builtin.debug:
+    msg: "{{ script_output.stdout }}"
+
+- name: Deploy systemd service file for hello_world
+  ansible.builtin.copy:
+    src: hello_world.service
+    dest: /etc/systemd/system/hello_world.service
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Create directory for systemd override files
+  ansible.builtin.file:
+    path: /etc/systemd/system/hello_world.service.d
+    state: directory
+    mode: '0755'
+
+- name: Deploy systemd override file for hello_world
+  ansible.builtin.copy:
+    src: override.conf
+    dest: /etc/systemd/system/hello_world.service.d/override.conf
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Deploy systemd timer file for hello_world
+  ansible.builtin.copy:
+    src: hello_world.timer
+    dest: /etc/systemd/system/hello_world.timer
+    mode: '0644'
+  notify: Reload systemd
+
+- name: Check status of hello_world service
+  ansible.builtin.systemd:
+    name: hello_world
+    state: started
+    enabled: yes
+
+- name: Check status of hello_world timer
+  ansible.builtin.systemd:
+    name: hello_world.timer
+    state: started
+    enabled: yes
