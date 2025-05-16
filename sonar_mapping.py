@@ -376,27 +376,38 @@ def remove_permissions_from_sonar_users():
         if data is None:
             sys.exit(1)
 
-        current_permissions = [perm["permission"] for perm in data.get("permissions", [])]
-        if not current_permissions:
-            print(f"Группа sonar-users не имеет прав для проекта {project}. Пропускаем.")
-            continue
+        # Логируем полный ответ API для отладки
+        print(f"Полный ответ API для проверки прав sonar-users в проекте {project}: {data}")
 
-        print(f"Найдены права для группы sonar-users в проекте {project}: {current_permissions}")
+        # Проверяем, есть ли права в ответе
+        current_permissions = []
+        if "groups" in data and data["groups"]:
+            for group in data["groups"]:
+                if group["name"] == "sonar-users" and "permissions" in group:
+                    current_permissions = group["permissions"]
+                    break
+
+        if current_permissions:
+            print(f"Найдены права для группы sonar-users в проекте {project}: {current_permissions}")
+        else:
+            print(f"Права для группы sonar-users в проекте {project} не найдены в ответе API. Пытаемся удалить все возможные права.")
+
+        # Если права не найдены, всё равно пытаемся удалить все возможные права, чтобы перекрыть унаследованные
+        permissions_to_remove = list(set(current_permissions + possible_permissions))
+
         # Удаляем каждое право
-        for permission in current_permissions:
-            if permission in possible_permissions:
-                payload = {
-                    "groupName": "sonar-users",
-                    "projectKey": project,
-                    "permission": permission
-                }
-                response = make_sonarqube_request("POST", "/api/permissions/remove_group", data=payload)
-                if response.status_code != 204:
-                    print(f"Не удалось удалить право '{permission}' у группы sonar-users для проекта {project}: Код ответа {response.status_code}")
-                    sys.exit(1)
-                print(f"Право '{permission}' удалено у группы sonar-users для проекта {project}.")
-            else:
-                print(f"Право '{permission}' не поддерживается для удаления. Пропускаем.")
+        for permission in permissions_to_remove:
+            payload = {
+                "groupName": "sonar-users",
+                "projectKey": project,
+                "permission": permission
+            }
+            response = make_sonarqube_request("POST", "/api/permissions/remove_group", data=payload)
+            if response.status_code != 204:
+                print(f"Не удалось удалить право '{permission}' у группы sonar-users для проекта {project}: Код ответа {response.status_code}")
+                # Игнорируем ошибку, если право не существует, продолжаем
+                continue
+            print(f"Право '{permission}' удалено у группы sonar-users для проекта {project}.")
 
     print("=== Этап 5 завершен успешно ===")
 
