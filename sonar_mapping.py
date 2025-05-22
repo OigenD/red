@@ -1,1 +1,1 @@
-curl -k -X POST 'https://10.167.40.158/emergence/api/v1/call/create' -H 'accept: */*' -H 'X-API-Key: azDEovWXQc2WyNSCsKpdR43OZE7vSRvyB6QTstn5qHK2enIGHMP0F5eRRVZBvVZH' -H 'Content-Type: application/json' -d '{"guid":"3fa85f64-5717-4562-b3fc-2c963f66afa6","serviceName":"Postgres","message":"Test message","request":"alertmanager-webhook","channels":["outbound"],"contacts":[{"name":"DikEV","domainName":"DikEV"}]}'
+21
