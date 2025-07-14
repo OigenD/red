@@ -18,7 +18,7 @@ def run_command(command, output_file=None):
 
 def main():
     # Get GitLab token from environment variable
-    gitlab_token = os.getenv("GITLAB_TOKEN")
+    gitlab_token = os.getenv("GITLAB_TOKEN", "glpat-9isxAkj5Y_ehVw68oJuW")
     if not gitlab_token:
         raise ValueError("Missing required environment variable: GITLAB_TOKEN")
 
@@ -47,11 +47,16 @@ def main():
     # Git operations
     git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.fc.uralsibbank.ru/sre-platfom-support/sonarqube-00000.git"
     git_commands = [
-        "git init --initial-branch=main",
+        # Skip git init if .git exists
+        "[ -d .git ] || git init --initial-branch=main",
         f"git remote add origin {git_repo_url} || git remote set-url origin {git_repo_url}",
-        "git config user.name 'Cluster Admin'",
-        "git config user.email 'admin@example.com'",
+        "git config user.name 'DikEV'",
+        "git config user.email 'DikEV@ufa.uralsib.ru'",
+        # Stash any unstaged changes
+        "git stash push -m 'Auto-stash before pull'",
         "git pull --rebase origin main",
+        # Apply stashed changes
+        "git stash pop || true",
         "git add tmp/*",
         f'git commit -m "Добавлены файлы состояния кластера {timestamp}" || true',
         "git push -u origin main"
