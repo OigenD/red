@@ -1,6 +1,5 @@
 ```python
 import subprocess
-import datetime
 import os
 
 def run_command(command, output_file=None):
@@ -25,9 +24,6 @@ def main():
     # Create tmp directory if it doesn't exist
     os.makedirs("tmp", exist_ok=True)
     
-    # Define timestamp for dynamic file names
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")
-    
     # List of commands with their respective output files
     commands = [
         ("kubectl get pods -A -o wide", "tmp/pre-experiment-pods.txt"),
@@ -36,8 +32,8 @@ def main():
         ("kubectl get all --all-namespaces -o yaml", "tmp/cluster-state-before.yaml"),
         ("kubectl get events --all-namespaces", "tmp/events-before.txt"),
         ("kubectl get applications.argoproj.io -A -o yaml", "tmp/argocd-applications.yaml"),
-        (f"kubectl get nodes,pods,services,deployments,statefulsets,daemonsets,replicasets,jobs,cronjobs --all-namespaces -o wide", f"tmp/cluster-state-{timestamp}.txt"),
-        (f"kubectl get all,configmap,secret,ingress,storageclass,persistentvolume,persistentvolumeclaim,namespace,role,rolebinding,clusterrole,clusterrolebinding,serviceaccount --all-namespaces -o yaml", f"tmp/all-manifests-{timestamp}.yaml")
+        ("kubectl get nodes,pods,services,deployments,statefulsets,daemonsets,replicasets,jobs,cronjobs --all-namespaces -o wide", "tmp/cluster-state.txt"),
+        ("kubectl get all,configmap,secret,ingress,storageclass,persistentvolume,persistentvolumeclaim,namespace,role,rolebinding,clusterrole,clusterrolebinding,serviceaccount --all-namespaces -o yaml", "tmp/all-manifests.yaml")
     ]
     
     # Execute cluster info collection commands
@@ -53,12 +49,12 @@ def main():
         "git config user.name 'DikEV'",
         "git config user.email 'DikEV@ufa.uralsib.ru'",
         # Stash any unstaged changes
-        "git stash push -m 'Auto-stash before pull'",
+        "git stash push -m 'Auto-stash before pull' || true",
         "git pull --rebase origin main",
         # Apply stashed changes
         "git stash pop || true",
         "git add tmp/*",
-        f'git commit -m "Добавлены файлы состояния кластера {timestamp}" || true',
+        f'git commit -m "Обновлено состояние кластера" || true',
         "git push -u origin main"
     ]
     
