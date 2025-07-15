@@ -17,7 +17,7 @@ def run_command(command, output_file=None):
 
 def main():
     # Set working directory
-    work_dir = "/home/FC/dikev/cluster"
+    work_dir = "/home/FC/cluster"
     os.makedirs(work_dir, exist_ok=True)
     os.chdir(work_dir)
 
@@ -51,8 +51,6 @@ def main():
         # Initialize Git repository if it doesn't exist
         "[ -d .git ] || git init --initial-branch=main",
         f"git remote add origin {git_repo_url} || git remote set-url origin {git_repo_url}",
-        "git config user.name 'DikEV'",
-        "git config user.email 'DikEV@ufa.uralsibbank.ru'",
         # Create initial commit if repository is empty
         "git rev-parse HEAD >/dev/null 2>&1 || (git add . && git commit -m 'Initial commit' --allow-empty)",
         # Stash any unstaged changes
