@@ -1,4 +1,3 @@
-```python
 import subprocess
 import os
 
@@ -41,13 +40,11 @@ def main():
         run_command(cmd, outfile)
     
     # Git operations
-    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.fc.uralsibbank.ru/sre-platfom-support/sonarqube-00000.git"
+    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.git"
     git_commands = [
         # Skip git init if .git exists
         "[ -d .git ] || git init --initial-branch=main",
         f"git remote add origin {git_repo_url} || git remote set-url origin {git_repo_url}",
-        "git config user.name 'DikEV'",
-        "git config user.email 'DikEV@ufa.uralsib.ru'",
         # Stash any unstaged changes
         "git stash push -m 'Auto-stash before pull' || true",
         "git pull --rebase origin main",
@@ -68,4 +65,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Script failed: {e}")
         exit(1)
-```
+
