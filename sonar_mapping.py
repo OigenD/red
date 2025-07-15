@@ -16,7 +16,7 @@ def run_command(command, output_file=None):
 
 def main():
     # Get GitLab token from environment variable
-    gitlab_token = os.getenv("GITLAB_TOKEN", "glpat-9isxAkj5Y_ehVw68oJuW")
+    gitlab_token = os.getenv("GITLAB_TOKEN")
     if not gitlab_token:
         raise ValueError("Missing required environment variable: GITLAB_TOKEN")
 
