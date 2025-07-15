@@ -1,3 +1,4 @@
+```python
 import subprocess
 import os
 
@@ -15,8 +16,13 @@ def run_command(command, output_file=None):
         raise
 
 def main():
+    # Set working directory
+    work_dir = "/home/FC/dikev/cluster"
+    os.makedirs(work_dir, exist_ok=True)
+    os.chdir(work_dir)
+
     # Get GitLab token from environment variable
-    gitlab_token = os.getenv("GITLAB_TOKEN")
+    gitlab_token = os.getenv("GITLAB_TOKEN", "glpat-9isxAkj5Y_ehVw68oJuW")
     if not gitlab_token:
         raise ValueError("Missing required environment variable: GITLAB_TOKEN")
 
@@ -40,14 +46,18 @@ def main():
         run_command(cmd, outfile)
     
     # Git operations
-    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.git"
+    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.fc.uralsibbank.ru/sre-platfom-support/sonarqube-00000.git"
     git_commands = [
-        # Skip git init if .git exists
+        # Initialize Git repository if it doesn't exist
         "[ -d .git ] || git init --initial-branch=main",
         f"git remote add origin {git_repo_url} || git remote set-url origin {git_repo_url}",
+        "git config user.name 'DikEV'",
+        "git config user.email 'DikEV@ufa.uralsibbank.ru'",
+        # Create initial commit if repository is empty
+        "git rev-parse HEAD >/dev/null 2>&1 || (git add . && git commit -m 'Initial commit' --allow-empty)",
         # Stash any unstaged changes
         "git stash push -m 'Auto-stash before pull' || true",
-        "git pull --rebase origin main",
+        "git pull --rebase origin main || true",
         # Apply stashed changes
         "git stash pop || true",
         "git add tmp/*",
@@ -55,7 +65,7 @@ def main():
         "git push -u origin main"
     ]
     
-    # Initialize Git and push to GitLab
+    # Execute Git commands
     for cmd in git_commands:
         run_command(cmd)
 
@@ -65,4 +75,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Script failed: {e}")
         exit(1)
-
+```
