@@ -22,7 +22,7 @@ def main():
     os.chdir(work_dir)
 
     # Get GitLab token from environment variable
-    gitlab_token = os.getenv("GITLAB_TOKEN", "glpat-9isxAkj5Y_ehVw68oJuW")
+    gitlab_token = os.getenv("GITLAB_TOKEN")
     if not gitlab_token:
         raise ValueError("Missing required environment variable: GITLAB_TOKEN")
 
@@ -46,7 +46,7 @@ def main():
         run_command(cmd, outfile)
     
     # Git operations
-    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.fc.uralsibbank.ru/sre-platfom-support/sonarqube-00000.git"
+    git_repo_url = f"https://oauth2:{gitlab_token}@git"
     git_commands = [
         # Initialize Git repository if it doesn't exist
         "[ -d .git ] || git init --initial-branch=main",
