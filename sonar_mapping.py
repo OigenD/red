@@ -74,3 +74,47 @@ if __name__ == "__main__":
         print(f"Script failed: {e}")
         exit(1)
 ```
+
+backapp.sh
+
+#!/bin/bash
+
+# Настройка etcdctl
+export ETCDCTL_API=3
+export ETCDCTL_ENDPOINTS=https://:2379
+export ETCDCTL_CACERT=/etc/ssl/etcd/ssl/ca.pem
+export ETCDCTL_CERT=/etc/ssl/etcd/ssl/admin-msk-as1-k8sm-p.fc.ural.ru.pem
+export ETCDCTL_KEY=/etc/ssl/etcd/ssl/admin-msk-as1-k8sm-p.fc.ural.ru-key.pem
+
+# Параметры для MinIO
+MINIO_ALIAS="myminio"
+BUCKET="etcd-backups"
+SNAPSHOT_PATH="/tmp/etcd-snapshot.db"
+OBJECT_NAME="snapshots/etcd-snapshot-$(date +%Y-%m-%d-%H-%M-%S).db"
+
+# Проверка и создание бакета
+mc mb $MINIO_ALIAS/$BUCKET 2>/dev/null || true
+
+# Создание снапшота
+etcdctl snapshot save $SNAPSHOT_PATH
+
+# Проверка успешности создания снапшота
+if [ $? -eq 0 ]; then
+  echo "Snapshot created successfully: $SNAPSHOT_PATH"
+else
+  echo "Failed to create snapshot"
+  exit 1
+fi
+
+# Загрузка в MinIO
+mc cp $SNAPSHOT_PATH $MINIO_ALIAS/$BUCKET/$OBJECT_NAME
+
+# Проверка успешности загрузки
+if [ $? -eq 0 ]; then
+  echo "Snapshot uploaded to $MINIO_ALIAS/$BUCKET/$OBJECT_NAME"
+  # Удаление локального файла
+  rm $SNAPSHOT_PATH
+else
+  echo "Failed to upload snapshot to MinIO"
+  exit 1
+fi
