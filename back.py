@@ -1,7 +1,6 @@
 #!/usr/bin/python3.8
 import subprocess
 import os
-import yaml  # Для парсинга, если нужно, но здесь опционально
 
 def run_command(command, output_file=None):
     try:
@@ -31,7 +30,6 @@ def main():
     os.makedirs("tmp", exist_ok=True)
     
     # List of commands with their respective output files
-    # Базовые команды из оригинала
     base_commands = [
         ("kubectl get pods -A -o wide", "tmp/pre-experiment-pods.txt"),
         ("kubectl get nodes -o wide", "tmp/experiment-nodes.txt"),
@@ -43,7 +41,6 @@ def main():
         ("kubectl get all,configmap,secret,ingress,storageclass,persistentvolume,persistentvolumeclaim,namespace,role,rolebinding,clusterrole,clusterrolebinding,serviceaccount,services,deployments,statefulsets,daemonsets,replicasets,jobs,cronjobs --all-namespaces -o yaml", "tmp/all-manifests.yaml")
     ]
     
-    # Дополнительные команды для недостающих ресурсов (статические)
     additional_commands = [
         # Автомасштабирование
         ("kubectl get horizontalpodautoscalers.autoscaling -A -o yaml", "tmp/hpa.yaml"),
@@ -95,7 +92,7 @@ def main():
             for crd in crds_data:
                 if crd and crd.get('kind') == 'CustomResourceDefinition':
                     name = crd['metadata']['name']
-                    plural = name.rsplit('.', 1)[0]  # e.g., applications.argoproj.io -> applications
+                    plural = name.rsplit('.', 1)[0]
                     group = name.rsplit('.', 1)[1]
                     instance_cmd = f"kubectl get {plural}.{group} -A -o yaml"
                     output_file = f"tmp/{plural}-{group}.yaml"
@@ -105,13 +102,13 @@ def main():
         print(f"Warning: Could not collect CR instances dynamically: {e}")
     
     # Git operations
-    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab.fc.uralsibbank.ru/sre-platfom-support/sonarqube-00000.git"
+    git_repo_url = f"https://oauth2:{gitlab_token}@gitlab."
     git_commands = [
         # Initialize Git repository if it doesn't exist
         "[ -d .git ] || git init --initial-branch=main",
         f"git remote add origin {git_repo_url} || git remote set-url origin {git_repo_url}",
-        "git config user.name 'DikEV'",
-        "git config user.email 'DikEV@ufa.uralsibbank.ru'",
+        "git config user.name ''",
+        "git config user.email ''",
         # Create initial commit if repository is empty
         "git rev-parse HEAD >/dev/null 2>&1 || (git add . && git commit -m 'Initial commit' --allow-empty)",
         # Stash any unstaged changes
